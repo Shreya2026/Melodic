@@ -80,7 +80,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                     currentSongCard = songCard;
                     togglePlayPause(songCard, true);
-                    updatePlaybarInfo(songCard);
+                    updatePlayBarInfo2(songCard);
                 } else {
                     audio.play();
                     togglePlayPause(songCard, true);
@@ -126,7 +126,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                     currentSongCard = card;
                     togglePlayPause(card, true);
-                    updatePlaybarInfo(card);
+                    updatePlayBarInfo2(card);
                 } else {
                     audio.play();
                     togglePlayPause(card, true);
@@ -150,8 +150,6 @@ document.addEventListener('DOMContentLoaded', () => {
             if (currentSongCard) {
                 togglePlayPause(currentSongCard, true);
             }
-            seekPlayButton.style.display = 'none';
-            seekPauseButton.style.display = 'block';
         }
     });
 
@@ -161,8 +159,6 @@ document.addEventListener('DOMContentLoaded', () => {
             if (currentSongCard) {
                 togglePlayPause(currentSongCard, false);
             }
-            seekPlayButton.style.display = 'block';
-            seekPauseButton.style.display = 'none';
         }
     });
 
@@ -177,19 +173,32 @@ document.addEventListener('DOMContentLoaded', () => {
             if (pauseButton) pauseButton.style.display = 'block';
             if (play3Button) play3Button.style.display = 'none';
             if (pause3Button) pause3Button.style.display = 'block';
+            seekPlayButton.style.display='none';
+            seekPauseButton.style.display='block';
         } else {
             if (playButton) playButton.style.display = 'block';
             if (pauseButton) pauseButton.style.display = 'none';
             if (play3Button) play3Button.style.display = 'block';
             if (pause3Button) pause3Button.style.display = 'none';
+            seekPlayButton.style.display='block';
+            seekPauseButton.style.display='none';
         }
     }
 
+    function updatePlayBarInfo2(songElement){
+        const title=songElement.getAttribute('data-title');
+        const artist=songElement.getAttribute('data-artist');
+        songInfoDiv.innerHTML=`<div>${title}</div><div>${artist}</div>`;
+        updateSongTime();
+    }
+
+    
+
     function updatePlaybarInfo(songCard) {
         // Ensure this function only updates once per song
-        if (songCard === currentSongCard) {
-            return; // Skip if the same song card is already being updated
-        }
+        //  if (songCard === currentSongCard) {
+        //      return; // Skip if the same song card is already being updated
+        //  }
         
         // Clear previous song info
         songInfoDiv.innerHTML = '';
