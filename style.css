@@ -1,0 +1,475 @@
+/* Base styles for larger screens */
+* {
+    margin: 0;
+    padding: 0;
+    font-family: "Lato", sans-serif;
+    font-weight: 400;
+    font-style: normal; 
+}
+
+body {
+    background-color: black;
+    color: white;
+}
+
+.logo img {
+    width: 180px;
+    margin: 0;
+    padding: 5px 0px;
+}
+
+.left {
+    width: 25vw;
+    padding: 10px;
+    padding-right: 2px;
+    max-height: 100vh;
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    overflow-y: hidden;
+}
+
+.right {
+    width: 75vw;
+    margin-left: 27vw; 
+    overflow-y: scroll;
+    overflow-x: hidden;
+    max-height: 100vh;
+    position: relative;
+}
+
+.buttons {
+    padding: 5px;
+}
+
+.buttons button {
+    padding: 7px;
+    border-radius: 20px;
+    font-weight: bold;
+    cursor: pointer;
+    font-size: larger;
+    transition: transform 0.3s ease, padding 0.3s ease, border-radius 0.3s ease;
+}
+
+.buttons button:hover {
+    padding: 10px;
+    transform: scale(1.1);
+    border-radius: 25px;
+}
+
+.logo h1 {
+    font-weight: bold;
+    margin-top: 50px;
+    position: absolute;
+    left: 180px;
+}
+
+.head ul {
+    display: flex;
+    width: 100%;
+    list-style: none; /* Remove bullet points */
+}
+
+.head ul li {
+    width: 115px;
+    list-style: none;
+    display: flex;
+    gap: 15px;
+    padding-top: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    align-items: center;
+}
+
+.library {
+    min-height: 95vh;
+}
+
+.library h2 {
+    cursor: pointer;
+}
+
+.head {
+    display: flex;
+    justify-content: space-between;
+    padding: 12px;
+    margin: 11px 0px;
+    height: 50px;
+}
+
+.main h2 {
+    padding: 13px;
+}
+
+.card {
+    width: 180px;
+    padding: 15px;
+    border-radius: 10px;
+    background-color: #1a1919;
+    position: relative;
+    transition: transform 0.3s ease;
+}
+
+.card img {
+    width: 100%;
+    object-fit: contain;
+}
+
+.card h4 {
+    padding: 10px 0px;
+    font-weight: bold;
+}
+
+.first {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    padding-bottom: 13px;
+}
+
+.play {
+    height: 10px;
+    width: 43px;
+    position: absolute;
+    bottom: 146px;
+    left: 23px;
+    opacity: 0;   
+}
+
+.pause {
+    height: 10px;
+    width: 43px;
+    position: absolute;
+    bottom: 146px;
+    left: 23px;
+}
+
+.songinfo, .songtime {
+    color: white;
+}
+
+.card:hover {
+    transform: scale(1.1);
+}
+
+.card:hover .play {
+    opacity: 1;
+    transition: all 1s ease-out;
+}
+
+.playbar {
+    position: sticky;
+    bottom: 0;
+    padding: 20px;
+    justify-content: space-around;
+    background-color: #191c1c;
+    border-radius: 20px;
+}
+
+.songButtons {
+    display: flex;
+    justify-content: center;
+    gap: 3px;
+}
+
+.home-clk{
+    color: white;
+    width: 115px;
+    display: flex;
+    gap: 15px;
+    font-weight: bold;
+    text-decoration: none;
+}
+
+.invert {
+    filter: invert(1);
+}
+
+.bg-black {
+    background-color: black;
+    color: white;
+}
+
+.bg-grey {
+    background-color: rgb(17, 17, 17);
+}
+
+.heading {
+    display: flex;
+    gap: 15px;
+    padding-top: 14px;
+    font-weight: bold;
+    align-items: center;
+    padding: 23px 14px;
+    justify-content: space-between;
+    font-size: 13px;
+    margin-bottom: 10px;
+}
+
+.lib-head {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+}
+
+.heading img {
+    width: 25px;
+    height: 25px;
+}
+
+.head img {
+    width: 25px;
+}
+
+.heading2 {
+    display: flex;
+    gap: 15px;
+    padding-top: 14px;
+    font-weight: bold;
+    align-items: center;
+    padding: 23px 14px;
+    justify-content: space-between;
+    font-size: 13px;
+}
+
+.fav {
+    display: flex;
+    gap: 15px;
+}
+
+.play-song img {
+    border: 2px solid white;
+    border-radius: 20px;
+    padding: 4px;
+    gap: 5px;
+}
+
+#res-logo {
+    display: none;
+}
+.close {
+    display: none;
+}
+
+.song-card {
+    display: flex;
+    padding: 15px;
+    border: 2px solid #d3cdcd;
+    border-radius: 27px;
+    gap: 4px;
+}
+
+.play-song {
+    position: absolute;
+    left: 300px;
+}
+
+.hamburger{
+    display:none
+}
+
+.search-bar {
+    display: none; /*Hide the search bar by default */
+    width: 300px;
+    padding: 10px;
+    margin-left: 60px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background-color: rgb(255 255 255);
+    transition:  0.8s ease-in-out;
+}
+
+.search-container {
+    display: flex;
+    align-items: center;
+    cursor: pointer; /* Make the whole area clickable */
+    font-weight:bold;
+    color: rgb(255, 255, 255);
+    gap: 5px;
+    position: relative;
+}
+
+.search-clk {
+    display: inline-flex;
+    align-items: center; /* Center items vertically */
+    font-weight: bold;
+    color: white; /* Text color */
+    position: absolute;
+}
+
+#search-btn {
+    margin-right: 5px;
+    cursor: pointer; /* Make the icon clickable */
+}
+
+#search-btn img {
+    width: 24px;
+    height: 24px;
+}
+
+#search-clk-box {
+    
+    align-items: center; 
+  }
+  
+
+  
+  #search-results {
+    border: 1px solid #0e0d0d;
+    max-height: 150px;
+    overflow-y: auto;
+    width: 100%;
+    background-color: rgb(235, 217, 217);
+    z-index: 1000;
+    display: none;
+    color: #191c1c;
+    position: absolute; /* Position relative to .search-container */
+    top: 100%; /* Place below the search bar */
+    left: 0;
+    
+  }
+  
+  #search-results div {
+    padding: 8px;
+    cursor: pointer;
+    font-weight: bold;
+  }
+  
+  #search-results div:hover {
+    background-color: #f0f0f0;
+  }
+  
+
+/* Media Queries for Responsive Design */
+
+/* For tablets (iPad) and smaller screens */
+@media screen and (max-width: 1024px) {
+    .left {
+        position: absolute;
+        left: -130%;
+        transition: all .3s;
+        z-index: 1;
+        width: 373px;
+        background-color: black;
+        padding: 0;
+        height: 100vh;
+        position: fixed;
+        top: 0;
+    }
+
+    .main{
+        padding-bottom: 70px;
+    }
+.play{
+    opacity: 1;
+}
+
+    .playbar{
+        font-size: 14px;
+    }
+   
+    .right {
+        width: 100vw;
+        margin: 0;
+        }
+    .hamburger{
+            display: block;
+            margin-top: 11px;
+        }
+
+        .hamburger img{
+            height: 45px;
+            width: 45px;
+        }
+
+    .head ul li {
+        width: auto;
+    }
+
+    .head ul{
+        margin-left: 40px
+    }
+
+
+    .left .close {
+        display: block;
+        position: absolute;
+        right: 31px;
+        top: 16px;
+        width: 6px;
+    }
+
+    .card {
+        width: 65vw;
+        padding: 10px;
+    }
+    .songlists {
+        margin: 0;
+        justify-content: center; 
+        max-height: unset;
+        overflow-y: unset;
+        margin-bottom: 35vh;
+    }
+
+    .play {
+        bottom: 120px;
+        left: 20px;
+    }
+    .songinfo,
+    .songtime {
+        width: auto;
+    }
+
+    .pause {
+        bottom: 120px;
+        left: 20px;
+    }
+
+    .playbar {
+        position: fixed;
+        bottom: 0;
+        width: calc(100vw - 75px); 
+        right: 25px;
+    }
+}
+
+@media (max-width: 768px) {
+    .search-bar {
+        display: block; /* Show the search bar on smaller screens */
+        position: absolute;
+        top: 36px;
+        width: 100vw;
+        position: absolute;
+        top: 36px;
+        left: -272px;
+        width: 99vw;
+        
+    }
+
+    .main h2{
+        padding-top: 30px;
+    }
+
+    .search-container {
+        position: relative; /* Ensure it positions its children correctly */
+        align-items: center; /* Center items vertically */
+        margin-bottom: 0; /* Adjust if needed */
+    }
+
+
+    #search-results {
+        width: 100vw;
+        position: absolute;
+        top: 74px;
+        left: -214px;
+}
+
+.playbar{
+    position: fixed;
+        bottom: 0;
+        width: calc(100vw - 75px);
+        right: 25px;
+}
+}

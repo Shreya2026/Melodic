@@ -1,0 +1,50 @@
+
+.flex{
+    display: flex;
+}
+.justify-center{
+    justify-content: center;
+}
+.items-center{
+    align-items: center;
+}
+
+.rounded{
+    border-radius: 7px;
+}
+.m-1{
+    margin: 5px;
+}
+.p-1{
+    padding: 10px 0px;
+}
+
+::-webkit-scrollbar {
+    width: 12px;  
+}
+
+::-webkit-scrollbar-track {
+    background: #1e1e1e;  
+}
+
+
+::-webkit-scrollbar-thumb {
+    background-color: #555; 
+    border-radius: 10px;    
+    border: 3px solid #1e1e1e;  
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #888; 
+}
+
+body {
+    scrollbar-width: thin;  
+    scrollbar-color: #555 #1e1e1e;  
+}
+
+
+body {
+    background-color: #121212;  
+    color: #fff;  
+}
