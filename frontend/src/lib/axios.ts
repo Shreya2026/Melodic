@@ -5,4 +5,4 @@ const axiosInstance = axios.create({
   withCredentials: true, // if you're using cookies/auth
 });
 
-export default axiosInstance;
+export {axiosInstance};
