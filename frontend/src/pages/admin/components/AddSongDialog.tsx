@@ -74,7 +74,7 @@ const AddSongDialog = () => {
 				album: newSong.album
 			});
 
-			await axiosInstance.post("/admin/songs", formData, {
+			await axiosInstance.post("/api/admin/songs", formData, {
 				headers: {
 					"Authorization": typeof authHeader === 'string' ? authHeader : '',
 				},

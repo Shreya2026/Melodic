@@ -25,7 +25,7 @@ const AuthCallbackPage = () => {
 					imageUrl: user.imageUrl,
 				});
 
-				const response = await axiosInstance.post("/auth/callback", {
+				const response = await axiosInstance.post("/api/auth/callback", {
 					id: user.id,
 					firstName: user.firstName,
 					lastName: user.lastName,
