@@ -22,13 +22,17 @@ dotenv.config();
 
 const __dirname = path.resolve();
 const app=express();
-const PORT=process.env.PORT;
+const PORT=process.env.PORT || 5000;
 
 const httpServer = createServer(app);
 initializeSocket(httpServer);
 
 app.use(cors({
-    origin:  'http://localhost:5173', // Allow requests from the client URL
+    origin: [
+  'https://melodic.vercel.app',
+  'http://localhost:5173'
+],
+ // Allow requests from the client URL
     credentials: true, // Allow cookies to be sent with requests
 }));
 
