@@ -29,7 +29,7 @@ initializeSocket(httpServer);
 
 app.use(cors({
     origin: [
-  'https://melodic-shreyanshi-singhals-projects.vercel.app/',
+  'https://melodic-shreyanshi-singhals-projects.vercel.app',
   'http://localhost:5173'
 ],
  // Allow requests from the client URL
