@@ -17,17 +17,22 @@ const MessageInput = () => {
 	};
 
 	return (
-		<div className='p-4 mt-auto border-t border-zinc-800'>
-			<div className='flex gap-2'>
+		<div className='p-3 sm:p-4 border-t border-zinc-800 bg-zinc-900/90 backdrop-blur-sm chat-input-mobile mobile-safe-bottom'>
+			<div className='flex gap-2 sm:gap-3 items-end'>
 				<Input
-					placeholder='Type a message'
+					placeholder='Type a message...'
 					value={newMessage}
 					onChange={(e) => setNewMessage(e.target.value)}
-					className='bg-zinc-800 border-none'
-					onKeyDown={(e) => e.key === "Enter" && handleSend()}
+					className='bg-zinc-800 border-zinc-700 focus:border-zinc-600 text-sm sm:text-base min-h-[44px] sm:min-h-[44px]'
+					onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && handleSend()}
 				/>
 
-				<Button size={"icon"} onClick={handleSend} disabled={!newMessage.trim()}>
+				<Button 
+					size="sm"
+					onClick={handleSend} 
+					disabled={!newMessage.trim()}
+					className='bg-green-500 hover:bg-green-600 text-black shrink-0 h-[44px] w-[44px] p-0'
+				>
 					<Send className='size-4' />
 				</Button>
 			</div>

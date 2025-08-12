@@ -119,6 +119,44 @@
   }
 }
 
+/* Mobile-specific improvements */
+@media (max-width: 768px) {
+  /* Ensure content doesn't hide behind mobile status bars */
+  .mobile-safe-top {
+    padding-top: env(safe-area-inset-top);
+  }
+  
+  .mobile-safe-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  /* Improve touch targets for mobile */
+  button, .cursor-pointer {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  
+  /* Better text rendering on mobile */
+  body {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  
+  /* Prevent zoom on input focus */
+  input, textarea, select {
+    font-size: 16px;
+  }
+}
+
+/* Chat-specific mobile improvements */
+@media (max-width: 1024px) {
+  .chat-input-mobile {
+    position: sticky;
+    bottom: 0;
+    z-index: 10;
+  }
+}
+
 /* Mobile sidebar transitions */
 @layer utilities {
   .sidebar-overlay {

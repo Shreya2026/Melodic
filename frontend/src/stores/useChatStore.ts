@@ -14,6 +14,8 @@ interface ChatStore {
 	userActivities: Map<string, string>;
 	messages: Message[];
 	selectedUser: User | null;
+	// Add a map to store messages for each conversation
+	conversationMessages: Map<string, Message[]>;
 
 	fetchUsers: () => Promise<void>;
 	initSocket: (userId: string) => void;
@@ -21,6 +23,8 @@ interface ChatStore {
 	sendMessage: (receiverId: string, senderId: string, content: string) => void;
 	fetchMessages: (userId: string) => Promise<void>;
 	setSelectedUser: (user: User | null) => void;
+	clearConversationCache: () => void;
+	refreshMessages: (userId: string) => Promise<void>;
 }
 
 const baseURL =
@@ -45,10 +49,31 @@ export const useChatStore = create<ChatStore>((set, get) => ({
 	userActivities: new Map(),
 	messages: [],
 	selectedUser: null,
+	conversationMessages: new Map(),
 
 	setSelectedUser: (user) => {
-		set({ selectedUser: user });
-		// Don't clear messages here - let fetchMessages handle it
+		const currentState = get();
+		
+		// If selecting the same user, don't do anything
+		if (currentState.selectedUser?.clerkId === user?.clerkId) {
+			return;
+		}
+		
+		// Save current messages to conversation map before switching
+		if (currentState.selectedUser && currentState.messages.length > 0) {
+			const conversationKey = currentState.selectedUser.clerkId;
+			const updatedConversations = new Map(currentState.conversationMessages);
+			updatedConversations.set(conversationKey, [...currentState.messages]);
+			set({ conversationMessages: updatedConversations });
+		}
+		
+		// Load messages for the new selected user
+		const newMessages = user ? currentState.conversationMessages.get(user.clerkId) || [] : [];
+		
+		set({ 
+			selectedUser: user, 
+			messages: newMessages 
+		});
 	},
 
 	fetchUsers: async () => {
@@ -93,30 +118,78 @@ export const useChatStore = create<ChatStore>((set, get) => ({
 			});
 
 			socket.on("receive_message", (message: Message) => {
-				const { selectedUser } = get();
+				const { selectedUser, conversationMessages } = get();
 				
-				// Show message if it's part of the current conversation
-				if (selectedUser && (
-					(message.senderId === selectedUser.clerkId && message.receiverId === userId) ||
-					(message.senderId === userId && message.receiverId === selectedUser.clerkId)
-				)) {
-					set((state) => ({
-						messages: [...state.messages, message],
-					}));
+				// Determine which conversation this message belongs to
+				let conversationUserId: string;
+				if (message.senderId === userId) {
+					conversationUserId = message.receiverId;
+				} else {
+					conversationUserId = message.senderId;
+				}
+				
+				// Update conversation messages map
+				const updatedConversations = new Map(conversationMessages);
+				const existingMessages = updatedConversations.get(conversationUserId) || [];
+				
+				// Check if message already exists to prevent duplicates
+				const messageExists = existingMessages.some(msg => msg._id === message._id);
+				if (!messageExists) {
+					updatedConversations.set(conversationUserId, [...existingMessages, message]);
+					
+					// If this message is for the currently selected conversation, also update current messages
+					if (selectedUser?.clerkId === conversationUserId) {
+						set((state) => {
+							const currentMessageExists = state.messages.some(msg => msg._id === message._id);
+							if (!currentMessageExists) {
+								return {
+									messages: [...state.messages, message],
+									conversationMessages: updatedConversations,
+								};
+							}
+							return { conversationMessages: updatedConversations };
+						});
+					} else {
+						set({ conversationMessages: updatedConversations });
+					}
 				}
 			});
 
 			socket.on("message_sent", (message: Message) => {
-				const { selectedUser } = get();
+				const { selectedUser, conversationMessages } = get();
 				
-				// Show message if it's part of the current conversation
-				if (selectedUser && (
-					(message.senderId === selectedUser.clerkId && message.receiverId === userId) ||
-					(message.senderId === userId && message.receiverId === selectedUser.clerkId)
-				)) {
-					set((state) => ({
-						messages: [...state.messages, message],
-					}));
+				// Determine which conversation this message belongs to
+				let conversationUserId: string;
+				if (message.senderId === userId) {
+					conversationUserId = message.receiverId;
+				} else {
+					conversationUserId = message.senderId;
+				}
+				
+				// Update conversation messages map
+				const updatedConversations = new Map(conversationMessages);
+				const existingMessages = updatedConversations.get(conversationUserId) || [];
+				
+				// Check if message already exists to prevent duplicates
+				const messageExists = existingMessages.some(msg => msg._id === message._id);
+				if (!messageExists) {
+					updatedConversations.set(conversationUserId, [...existingMessages, message]);
+					
+					// If this message is for the currently selected conversation, also update current messages
+					if (selectedUser?.clerkId === conversationUserId) {
+						set((state) => {
+							const currentMessageExists = state.messages.some(msg => msg._id === message._id);
+							if (!currentMessageExists) {
+								return {
+									messages: [...state.messages, message],
+									conversationMessages: updatedConversations,
+								};
+							}
+							return { conversationMessages: updatedConversations };
+						});
+					} else {
+						set({ conversationMessages: updatedConversations });
+					}
 				}
 			});
 
@@ -147,14 +220,86 @@ export const useChatStore = create<ChatStore>((set, get) => ({
 	},
 
 	fetchMessages: async (userId: string) => {
-		set({ isLoading: true, error: null, messages: [] }); // Clear previous messages
+		const { conversationMessages, selectedUser } = get();
+		
+		// Check if we already have messages for this conversation
+		const existingMessages = conversationMessages.get(userId);
+		if (existingMessages && existingMessages.length > 0) {
+			// If we have cached messages and this user is selected, show them immediately
+			if (selectedUser?.clerkId === userId) {
+				set({ messages: existingMessages });
+			}
+			return; // Don't fetch from server if we have cached messages
+		}
+		
+		set({ isLoading: true, error: null });
 		try {
 			const response = await axiosInstance.get(`/users/messages/${userId}`);
 			console.log("Fetched messages for user:", userId, response.data);
-			set({ messages: response.data });
+			
+			const fetchedMessages = response.data || [];
+			
+			// Update conversation messages map
+			const updatedConversations = new Map(conversationMessages);
+			updatedConversations.set(userId, fetchedMessages);
+			
+			// If this user is currently selected, also update current messages
+			if (selectedUser?.clerkId === userId) {
+				set({ 
+					messages: fetchedMessages,
+					conversationMessages: updatedConversations
+				});
+			} else {
+				set({ conversationMessages: updatedConversations });
+			}
 		} catch (error: any) {
 			console.error("Error fetching messages:", error);
 			set({ error: error.response?.data?.message || "Failed to fetch messages" });
+		} finally {
+			set({ isLoading: false });
+		}
+	},
+
+	clearConversationCache: () => {
+		set({ 
+			conversationMessages: new Map(),
+			messages: [],
+			selectedUser: null
+		});
+	},
+
+	refreshMessages: async (userId: string) => {
+		const { conversationMessages } = get();
+		
+		// Clear cached messages for this user
+		const updatedConversations = new Map(conversationMessages);
+		updatedConversations.delete(userId);
+		set({ conversationMessages: updatedConversations });
+		
+		// Fetch fresh messages
+		set({ isLoading: true, error: null });
+		try {
+			const response = await axiosInstance.get(`/users/messages/${userId}`);
+			console.log("Refreshed messages for user:", userId, response.data);
+			
+			const fetchedMessages = response.data || [];
+			
+			// Update conversation messages map
+			updatedConversations.set(userId, fetchedMessages);
+			
+			const { selectedUser } = get();
+			// If this user is currently selected, also update current messages
+			if (selectedUser?.clerkId === userId) {
+				set({ 
+					messages: fetchedMessages,
+					conversationMessages: updatedConversations
+				});
+			} else {
+				set({ conversationMessages: updatedConversations });
+			}
+		} catch (error: any) {
+			console.error("Error refreshing messages:", error);
+			set({ error: error.response?.data?.message || "Failed to refresh messages" });
 		} finally {
 			set({ isLoading: false });
 		}
