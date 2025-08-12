@@ -1,10 +1,23 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
 import { useChatStore } from "@/stores/useChatStore";
+import { RefreshCw } from "lucide-react";
+import { useState } from "react";
 
 const ChatHeader = () => {
-	const { selectedUser, onlineUsers } = useChatStore();
+	const { selectedUser, onlineUsers, refreshMessages } = useChatStore();
+	const [isRefreshing, setIsRefreshing] = useState(false);
 
 	if (!selectedUser) return null;
+
+	const handleRefresh = async () => {
+		setIsRefreshing(true);
+		try {
+			await refreshMessages(selectedUser.clerkId);
+		} finally {
+			setIsRefreshing(false);
+		}
+	};
 
 	return (
 		<div className='p-3 sm:p-4 border-b border-zinc-800 bg-zinc-900/75 backdrop-blur-sm'>
@@ -19,6 +32,15 @@ const ChatHeader = () => {
 						{onlineUsers.has(selectedUser.clerkId) ? "Online" : "Offline"}
 					</p>
 				</div>
+				<Button
+					variant="ghost"
+					size="sm"
+					onClick={handleRefresh}
+					disabled={isRefreshing}
+					className='shrink-0'
+				>
+					<RefreshCw className={`size-4 ${isRefreshing ? 'animate-spin' : ''}`} />
+				</Button>
 			</div>
 		</div>
 	);

@@ -25,6 +25,7 @@ interface ChatStore {
 	setSelectedUser: (user: User | null) => void;
 	clearConversationCache: () => void;
 	refreshMessages: (userId: string) => Promise<void>;
+	initializeMessages: () => Promise<void>;
 }
 
 const baseURL =
@@ -67,13 +68,14 @@ export const useChatStore = create<ChatStore>((set, get) => ({
 			set({ conversationMessages: updatedConversations });
 		}
 		
-		// Load messages for the new selected user
-		const newMessages = user ? currentState.conversationMessages.get(user.clerkId) || [] : [];
-		
+		// Set the new selected user and clear current messages (will be loaded by fetchMessages)
 		set({ 
 			selectedUser: user, 
-			messages: newMessages 
+			messages: [],
+			isLoading: user ? true : false // Show loading when selecting a user
 		});
+		
+		// fetchMessages will be called by the useEffect in ChatPage
 	},
 
 	fetchUsers: async () => {
@@ -118,6 +120,7 @@ export const useChatStore = create<ChatStore>((set, get) => ({
 			});
 
 			socket.on("receive_message", (message: Message) => {
+				console.log("Received message via socket:", message);
 				const { selectedUser, conversationMessages } = get();
 				
 				// Determine which conversation this message belongs to
@@ -135,7 +138,12 @@ export const useChatStore = create<ChatStore>((set, get) => ({
 				// Check if message already exists to prevent duplicates
 				const messageExists = existingMessages.some(msg => msg._id === message._id);
 				if (!messageExists) {
-					updatedConversations.set(conversationUserId, [...existingMessages, message]);
+					const newMessages = [...existingMessages, message];
+					updatedConversations.set(conversationUserId, newMessages);
+					
+					// Save to localStorage as backup
+					const storageKey = `chat_messages_${conversationUserId}`;
+					localStorage.setItem(storageKey, JSON.stringify(newMessages));
 					
 					// If this message is for the currently selected conversation, also update current messages
 					if (selectedUser?.clerkId === conversationUserId) {
@@ -156,6 +164,7 @@ export const useChatStore = create<ChatStore>((set, get) => ({
 			});
 
 			socket.on("message_sent", (message: Message) => {
+				console.log("Message sent confirmation via socket:", message);
 				const { selectedUser, conversationMessages } = get();
 				
 				// Determine which conversation this message belongs to
@@ -173,7 +182,12 @@ export const useChatStore = create<ChatStore>((set, get) => ({
 				// Check if message already exists to prevent duplicates
 				const messageExists = existingMessages.some(msg => msg._id === message._id);
 				if (!messageExists) {
-					updatedConversations.set(conversationUserId, [...existingMessages, message]);
+					const newMessages = [...existingMessages, message];
+					updatedConversations.set(conversationUserId, newMessages);
+					
+					// Save to localStorage as backup
+					const storageKey = `chat_messages_${conversationUserId}`;
+					localStorage.setItem(storageKey, JSON.stringify(newMessages));
 					
 					// If this message is for the currently selected conversation, also update current messages
 					if (selectedUser?.clerkId === conversationUserId) {
@@ -222,24 +236,42 @@ export const useChatStore = create<ChatStore>((set, get) => ({
 	fetchMessages: async (userId: string) => {
 		const { conversationMessages, selectedUser } = get();
 		
-		// Check if we already have messages for this conversation
-		const existingMessages = conversationMessages.get(userId);
-		if (existingMessages && existingMessages.length > 0) {
-			// If we have cached messages and this user is selected, show them immediately
-			if (selectedUser?.clerkId === userId) {
-				set({ messages: existingMessages });
+		// First, try to load from localStorage while we fetch from server
+		const storageKey = `chat_messages_${userId}`;
+		const cachedMessages = localStorage.getItem(storageKey);
+		if (cachedMessages) {
+			try {
+				const parsedMessages = JSON.parse(cachedMessages);
+				console.log("🔄 Loading cached messages for user:", userId);
+				
+				// Update conversation messages map with cached data
+				const updatedConversations = new Map(conversationMessages);
+				updatedConversations.set(userId, parsedMessages);
+				
+				// If this user is currently selected, show cached messages immediately
+				if (selectedUser?.clerkId === userId) {
+					set({ 
+						messages: parsedMessages,
+						conversationMessages: updatedConversations
+					});
+				}
+			} catch (e) {
+				console.error("Failed to parse cached messages:", e);
 			}
-			return; // Don't fetch from server if we have cached messages
 		}
 		
+		// Always fetch from server to ensure we have the latest messages
 		set({ isLoading: true, error: null });
 		try {
 			const response = await axiosInstance.get(`/users/messages/${userId}`);
-			console.log("Fetched messages for user:", userId, response.data);
+			console.log("📥 Fetched fresh messages for user:", userId, response.data);
 			
 			const fetchedMessages = response.data || [];
 			
-			// Update conversation messages map
+			// Update localStorage with fresh data
+			localStorage.setItem(storageKey, JSON.stringify(fetchedMessages));
+			
+			// Update conversation messages map with fresh data
 			const updatedConversations = new Map(conversationMessages);
 			updatedConversations.set(userId, fetchedMessages);
 			
@@ -253,19 +285,45 @@ export const useChatStore = create<ChatStore>((set, get) => ({
 				set({ conversationMessages: updatedConversations });
 			}
 		} catch (error: any) {
-			console.error("Error fetching messages:", error);
-			set({ error: error.response?.data?.message || "Failed to fetch messages" });
+			console.error("❌ Error fetching messages:", error);
+			// If server fetch fails but we have cached data, keep using that
+			if (!cachedMessages) {
+				set({ error: error.response?.data?.message || "Failed to fetch messages" });
+			}
 		} finally {
 			set({ isLoading: false });
 		}
 	},
 
 	clearConversationCache: () => {
+		console.log("🧹 Clearing conversation cache");
 		set({ 
 			conversationMessages: new Map(),
 			messages: [],
 			selectedUser: null
 		});
+		
+		// Also clear localStorage
+		Object.keys(localStorage).forEach(key => {
+			if (key.startsWith('chat_messages_')) {
+				localStorage.removeItem(key);
+			}
+		});
+	},
+
+	// Add a function to handle app initialization/refresh
+	initializeMessages: async () => {
+		console.log("🔄 Initializing chat store on app start");
+		
+		// Clear any cached data on app start to ensure fresh data
+		set({ 
+			conversationMessages: new Map(),
+			messages: [],
+		});
+		
+		// Note: We don't restore from localStorage here because we want to
+		// always fetch fresh data from the server when a conversation is opened
+		// localStorage is only used as a fallback during fetch operations
 	},
 
 	refreshMessages: async (userId: string) => {

@@ -19,17 +19,22 @@ const formatTime = (date: string) => {
 
 const ChatPage = () => {
 	const { user } = useUser();
-	const { messages, selectedUser, fetchUsers, fetchMessages, isLoading } = useChatStore();
+	const { messages, selectedUser, fetchUsers, fetchMessages, isLoading, initializeMessages } = useChatStore();
 	const messagesEndRef = useRef<HTMLDivElement>(null);
 
 	const scrollToBottom = () => {
 		messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
 	};
 
+	// Initialize on component mount and when user changes
 	useEffect(() => {
-		if (user) fetchUsers();
-	}, [fetchUsers, user]);
+		if (user) {
+			initializeMessages(); // Clear cache on fresh load
+			fetchUsers();
+		}
+	}, [fetchUsers, user, initializeMessages]);
 
+	// Fetch messages when selectedUser changes
 	useEffect(() => {
 		if (selectedUser && user?.id) {
 			console.log("=== FETCHING MESSAGES ===");
@@ -40,6 +45,7 @@ const ChatPage = () => {
 		}
 	}, [selectedUser, fetchMessages, user?.id]);
 
+	// Auto-scroll when messages change
 	useEffect(() => {
 		scrollToBottom();
 	}, [messages]);
