@@ -105,10 +105,40 @@ export const useChatStore = create<ChatStore>((set, get) => ({
 				set({ userActivities: new Map(activities) });
 			});
 
+			// When socket connects, refresh messages for all known conversations
+			socket.on("connect", () => {
+				console.log("🔌 Socket connected, refreshing all conversations");
+				const { conversationMessages, selectedUser } = get();
+				
+				// Refresh all cached conversations
+				conversationMessages.forEach((_, userId) => {
+					get().refreshMessages(userId);
+				});
+				
+				// If there's a selected user, refresh their messages too
+				if (selectedUser) {
+					get().fetchMessages(selectedUser.clerkId);
+				}
+			});
+
 			socket.on("user_connected", (userId: string) => {
 				set((state) => ({
 					onlineUsers: new Set([...state.onlineUsers, userId]),
 				}));
+				
+				// If this user has a conversation with the current user, refresh messages
+				const { conversationMessages, selectedUser } = get();
+				if (conversationMessages.has(userId)) {
+					console.log("👤 User came online, refreshing their messages:", userId);
+					// Don't await this to avoid blocking
+					get().refreshMessages(userId);
+				}
+				
+				// If this is the currently selected user, refresh their messages
+				if (selectedUser?.clerkId === userId) {
+					console.log("💬 Currently selected user came online, refreshing messages");
+					get().fetchMessages(userId);
+				}
 			});
 
 			socket.on("user_disconnected", (userId: string) => {
@@ -213,6 +243,23 @@ export const useChatStore = create<ChatStore>((set, get) => ({
 					newActivities.set(userId, activity);
 					return { userActivities: newActivities };
 				});
+			});
+
+			// Listen for user coming online to refresh messages
+			socket.on("user_connected", ({ userId: connectedUserId }) => {
+				console.log("🟢 User came online:", connectedUserId);
+				const { selectedUser } = get();
+				
+				// If this is the user we're currently chatting with, refresh messages
+				if (selectedUser?.clerkId === connectedUserId) {
+					console.log("📨 Refreshing messages for newly online user");
+					get().fetchMessages(connectedUserId);
+				}
+			});
+
+			// Listen for user going offline
+			socket.on("user_disconnected", ({ userId: disconnectedUserId }) => {
+				console.log("🔴 User went offline:", disconnectedUserId);
 			});
 
 			set({ isConnected: true });

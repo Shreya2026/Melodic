@@ -50,6 +50,31 @@ const ChatPage = () => {
 		scrollToBottom();
 	}, [messages]);
 
+	// Auto-refresh messages when page becomes visible again
+	useEffect(() => {
+		const handleVisibilityChange = () => {
+			if (!document.hidden && selectedUser) {
+				console.log("👁️ Page became visible, refreshing messages");
+				fetchMessages(selectedUser.clerkId);
+			}
+		};
+
+		document.addEventListener('visibilitychange', handleVisibilityChange);
+		return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
+	}, [selectedUser, fetchMessages]);
+
+	// Periodic refresh for selected conversation
+	useEffect(() => {
+		if (!selectedUser) return;
+
+		const interval = setInterval(() => {
+			console.log("🔄 Periodic refresh for", selectedUser.fullName);
+			fetchMessages(selectedUser.clerkId);
+		}, 30000); // Refresh every 30 seconds
+
+		return () => clearInterval(interval);
+	}, [selectedUser, fetchMessages]);
+
 	console.log("=== CHAT PAGE DEBUG ===");
 	console.log("ChatPage - Current user:", user?.id);
 	console.log("ChatPage - Selected user:", selectedUser?.clerkId);
