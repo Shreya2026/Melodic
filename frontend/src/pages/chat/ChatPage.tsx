@@ -51,7 +51,7 @@ const ChatPage = () => {
 		<main className='h-full rounded-lg bg-gradient-to-b from-zinc-800 to-zinc-900 overflow-hidden'>
 			<Topbar />
 
-			<div className='grid lg:grid-cols-[300px_1fr] grid-cols-[80px_1fr] h-[calc(100vh-180px)]'>
+			<div className='grid grid-cols-[60px_1fr] sm:grid-cols-[80px_1fr] lg:grid-cols-[300px_1fr] h-[calc(100vh-180px)]'>
 				<UsersList />
 
 				{/* chat message */}
@@ -62,15 +62,15 @@ const ChatPage = () => {
 
 							{/* Messages */}
 							<ScrollArea className='h-[calc(100vh-340px)]'>
-								<div className='p-4 space-y-4'>
+								<div className='p-2 sm:p-4 space-y-3 sm:space-y-4'>
 									{messages.map((message) => (
 										<div
 											key={message._id}
-											className={`flex items-start gap-3 ${
+											className={`flex items-start gap-2 sm:gap-3 ${
 												message.senderId === user?.id ? "flex-row-reverse" : ""
 											}`}
 										>
-											<Avatar className='size-8'>
+											<Avatar className='size-6 sm:size-8 flex-shrink-0'>
 												<AvatarImage
 													src={
 														message.senderId === user?.id
@@ -81,11 +81,11 @@ const ChatPage = () => {
 											</Avatar>
 
 											<div
-												className={`rounded-lg p-3 max-w-[70%]
+												className={`rounded-lg p-2 sm:p-3 max-w-[85%] sm:max-w-[70%]
 													${message.senderId === user?.id ? "bg-green-500" : "bg-zinc-800"}
 												`}
 											>
-												<p className='text-sm'>{message.content}</p>
+												<p className='text-xs sm:text-sm break-words'>{message.content}</p>
 												<span className='text-xs text-zinc-300 mt-1 block'>
 													{formatTime(message.createdAt)}
 												</span>

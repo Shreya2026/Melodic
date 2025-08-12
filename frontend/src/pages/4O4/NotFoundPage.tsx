@@ -9,6 +9,7 @@ export default function NotFoundPage() {
 		<div className='h-screen bg-neutral-900 flex items-center justify-center'>
 			<div className='text-center space-y-8 px-4'>
 				{/* Large animated musical note */}
+                
 				<div className='flex justify-center animate-bounce'>
 					<Music2 className='h-24 w-24 text-emerald-500' />
 				</div>

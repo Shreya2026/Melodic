@@ -118,3 +118,34 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Mobile sidebar transitions */
+@layer utilities {
+  .sidebar-overlay {
+    backdrop-filter: blur(4px);
+  }
+  
+  .sidebar-slide {
+    transform: translateX(-100%);
+    transition: transform 0.3s ease-in-out;
+  }
+  
+  .sidebar-slide.open {
+    transform: translateX(0);
+  }
+  
+  /* Show text in mobile sidebar */
+  .mobile-sidebar .hidden {
+    display: block !important;
+  }
+}
+
+/* Hide scrollbar but keep functionality */
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}

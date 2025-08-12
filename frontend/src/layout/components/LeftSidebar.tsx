@@ -8,7 +8,11 @@ import { HomeIcon, Library, MessageCircle } from "lucide-react";
 import { useEffect } from "react";
 import { Link } from "react-router-dom";
 
-const LeftSidebar = () => {
+interface LeftSidebarProps {
+	onItemClick?: () => void;
+}
+
+const LeftSidebar = ({ onItemClick }: LeftSidebarProps) => {
 	const { albums, fetchAlbums, isLoading } = useMusicStore();
 
 	useEffect(() => {
@@ -25,6 +29,7 @@ const LeftSidebar = () => {
 				<div className='space-y-2'>
 					<Link
 						to={"/"}
+						onClick={onItemClick}
 						className={cn(
 							buttonVariants({
 								variant: "ghost",
@@ -33,12 +38,13 @@ const LeftSidebar = () => {
 						)}
 					>
 						<HomeIcon className='mr-2 size-5' />
-						<span className='hidden md:inline'>Home</span>
+						<span className='hidden md:inline lg:inline'>Home</span>
 					</Link>
 
 					<SignedIn>
 						<Link
 							to={"/chat"}
+							onClick={onItemClick}
 							className={cn(
 								buttonVariants({
 									variant: "ghost",
@@ -47,7 +53,7 @@ const LeftSidebar = () => {
 							)}
 						>
 							<MessageCircle className='mr-2 size-5' />
-							<span className='hidden md:inline'>Messages</span>
+							<span className='hidden md:inline lg:inline'>Messages</span>
 						</Link>
 					</SignedIn>
 				</div>
@@ -58,7 +64,7 @@ const LeftSidebar = () => {
 				<div className='flex items-center justify-between mb-4'>
 					<div className='flex items-center text-white px-2'>
 						<Library className='size-5 mr-2' />
-						<span className='hidden md:inline'>Playlists</span>
+						<span className='hidden md:inline lg:inline'>Playlists</span>
 					</div>
 				</div>
 
@@ -71,6 +77,7 @@ const LeftSidebar = () => {
 								<Link
 									to={`/albums/${album._id}`}
 									key={album._id}
+									onClick={onItemClick}
 									className='p-2 hover:bg-zinc-800 rounded-md flex items-center gap-3 group cursor-pointer'
 								>
 									<img
@@ -79,7 +86,7 @@ const LeftSidebar = () => {
 										className='size-12 rounded-md flex-shrink-0 object-cover'
 									/>
 
-									<div className='flex-1 min-w-0 hidden md:block'>
+									<div className='flex-1 min-w-0 hidden md:block lg:block'>
 										<p className='font-medium truncate'>{album.title}</p>
 										<p className='text-sm text-zinc-400 truncate'>Album • {album.artist}</p>
 									</div>

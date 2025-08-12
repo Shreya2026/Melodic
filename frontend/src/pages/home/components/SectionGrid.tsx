@@ -21,13 +21,13 @@ const SectionGrid = ({ songs, title, isLoading }: SectionGridProps) => {
 				</Button>
 			</div>
 
-			<div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4'>
+			<div className='grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 md:gap-4'>
 				{songs.map((song) => (
 					<div
 						key={song._id}
-						className='bg-zinc-800/40 p-4 rounded-md hover:bg-zinc-700/40 transition-all group cursor-pointer'
+						className='bg-zinc-800/40 p-3 md:p-4 rounded-md hover:bg-zinc-700/40 transition-all group cursor-pointer'
 					>
-						<div className='relative mb-4'>
+						<div className='relative mb-3 md:mb-4'>
 							<div className='aspect-square rounded-md shadow-lg overflow-hidden'>
 								<img
 									src={song.imageUrl}
@@ -39,8 +39,8 @@ const SectionGrid = ({ songs, title, isLoading }: SectionGridProps) => {
 							 <PlayButton song={song} /> 
                             
 						</div>
-						<h3 className='font-medium mb-2 truncate'>{song.title}</h3>
-						<p className='text-sm text-zinc-400 truncate'>{song.artist}</p>
+						<h3 className='font-medium mb-1 md:mb-2 truncate text-sm md:text-base'>{song.title}</h3>
+						<p className='text-xs md:text-sm text-zinc-400 truncate'>{song.artist}</p>
 					</div>
 				))}
 			</div>
